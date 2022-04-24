@@ -471,15 +471,34 @@
         },
       ];
 
-      //take areas from areas array and display them on map
+      // take areas from areas array and make them toggleable using layerGroup
+      var cities = L.layerGroup();
       for (var a = 0; a < areas.length; a++) {
         var polygon = L.polygon(areas[a].positions, {
           color: areas[a].color,
           fillColor: areas[a].color,
           fillOpacity: 0.1,
-        }).addTo(map);
+        });
         polygon.bindPopup(areas[a].name);
+        cities.addLayer(polygon);
+        
       }
+      cities.addTo(map);
+      
+
+      var overlayMaps = {
+        Cities: cities,
+      };
+
+      //take areas from areas array and display them on map
+      // for (var a = 0; a < areas.length; a++) {
+      //   var polygon = L.polygon(areas[a].positions, {
+      //     color: areas[a].color,
+      //     fillColor: areas[a].color,
+      //     fillOpacity: 0.1,
+      //   }).addTo(map);
+      //   polygon.bindPopup(areas[a].name);
+      // }
 
       //take markers from markers array and add them to the map
       for (var i = 0; i < markers.length; i++) {
@@ -487,7 +506,7 @@
         marker.bindPopup(markers[i].name);
       }
 
-      L.control.layers(baseMaps).addTo(map);
+      L.control.layers(baseMaps, overlayMaps).addTo(map);
     </script>
 
     <!-- debugger -->
