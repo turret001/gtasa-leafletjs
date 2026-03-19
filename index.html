@@ -28,35 +28,152 @@
       }
       #debugger {
         position: absolute;
-        left: 0;
-        bottom: 0;
-        width: 350px;
-        height: 200px;
-        /* background-color: royalblue; */
+        left: 12px;
+        bottom: 12px;
+        width: 340px;
         z-index: 9999;
+        font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        font-size: 13px;
+        transition: all 0.3s ease;
       }
-      .center {
-        max-width: 300px;
-        margin: auto;
-        padding: 15px;
-        background-color: royalblue;
+      #debugger.collapsed .tool-body {
+        display: none;
       }
-      .center label {
-        color: white;
+      #tool-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px;
+        background: linear-gradient(135deg, #1a1a2e, #16213e);
+        color: #e94560;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        user-select: none;
+        font-weight: 700;
+        font-size: 14px;
+        letter-spacing: 0.5px;
       }
-      .center input {
-        width: 70px;
+      #debugger.collapsed #tool-header {
+        border-radius: 8px;
       }
-      .center textarea {
-        width: 300px;
+      #tool-header .toggle-icon {
+        font-size: 11px;
+        color: #a0a0b0;
+        transition: transform 0.3s ease;
+      }
+      #debugger.collapsed #tool-header .toggle-icon {
+        transform: rotate(180deg);
+      }
+      .tool-body {
+        background: #1a1a2e;
+        padding: 14px;
+        border-radius: 0 0 8px 8px;
+        border-top: 1px solid #2a2a4a;
+      }
+      .tool-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .tool-row label {
+        color: #a0a0b0;
+        font-size: 12px;
+        min-width: 48px;
+      }
+      .tool-row input[type="text"] {
+        flex: 1;
+        padding: 6px 10px;
+        border: 1px solid #2a2a4a;
+        border-radius: 4px;
+        background: #0f0f23;
+        color: #e0e0e0;
+        font-size: 13px;
+        outline: none;
+      }
+      .tool-row input[type="text"]:focus {
+        border-color: #e94560;
+      }
+      .tool-row input[type="color"] {
+        width: 36px;
+        height: 30px;
+        border: 1px solid #2a2a4a;
+        border-radius: 4px;
+        background: #0f0f23;
+        cursor: pointer;
+        padding: 2px;
+      }
+      .tool-status {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 10px;
+        color: #a0a0b0;
+        font-size: 12px;
+      }
+      .tool-status .point-count {
+        color: #e94560;
+        font-weight: 600;
+      }
+      .tool-buttons {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 10px;
+        flex-wrap: wrap;
+      }
+      .tool-buttons button {
+        flex: 1;
+        min-width: 0;
+        padding: 7px 6px;
+        border: 1px solid #2a2a4a;
+        border-radius: 4px;
+        background: #0f0f23;
+        color: #e0e0e0;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.2s, border-color 0.2s;
+        white-space: nowrap;
+      }
+      .tool-buttons button:hover {
+        background: #16213e;
+        border-color: #e94560;
+      }
+      .tool-buttons button.btn-danger:hover {
+        border-color: #ff6b6b;
+        color: #ff6b6b;
+      }
+      .tool-buttons button.btn-primary {
+        background: #e94560;
+        border-color: #e94560;
+        color: #fff;
+        font-weight: 600;
+      }
+      .tool-buttons button.btn-primary:hover {
+        background: #d63851;
+      }
+      #generated {
+        width: 100%;
         height: 100px;
+        padding: 8px;
+        border: 1px solid #2a2a4a;
+        border-radius: 4px;
+        background: #0f0f23;
+        color: #7ec8e3;
+        font-family: 'Consolas', 'Monaco', monospace;
+        font-size: 11px;
+        resize: vertical;
+        outline: none;
+        box-sizing: border-box;
       }
-      #text-div {
-        margin-left: 10px;
-        max-width: 100px;
-        text-align: center;
-        background-color: royalblue;
-        color: white;
+      #generated:focus {
+        border-color: #e94560;
+      }
+      #copy-feedback {
+        color: #4caf50;
+        font-size: 11px;
+        margin-left: 8px;
+        opacity: 0;
+        transition: opacity 0.3s;
       }
     </style>
     <script
@@ -69,23 +186,32 @@
   <body>
     <div id="map" style="width: 100%; height: 100%; background: #888888"></div>
     <div id="debugger">
-      <div id="text-div">epic tool 9000</div>
-      <div class="center">
-        <label for="areaname">area name:</label>
-        <input id="areaname" name="areaname" type="text" autocomplete="off" />
-        <label for="areacolor">color:</label>
-        <input id="areacolor" name="areacolor" type="color" />
-        <textarea id="generated" readonly></textarea>
-        <button id="generate" type="button">generate</button>
+      <div id="tool-header">
+        <span>EPIC TOOL 9000</span>
+        <span class="toggle-icon">&#9660;</span>
       </div>
-      <!-- {
-  id: ,
-  positions: [
-    
-  ],
-  name: "",
-  color: "",
-} -->
+      <div class="tool-body">
+        <div class="tool-row">
+          <label for="areaname">Name</label>
+          <input id="areaname" name="areaname" type="text" autocomplete="off" placeholder="Area name..." />
+        </div>
+        <div class="tool-row">
+          <label for="areacolor">Color</label>
+          <input id="areacolor" name="areacolor" type="color" value="#e94560" />
+        </div>
+        <div class="tool-status">
+          <span>Points placed: <span class="point-count" id="point-count">0</span></span>
+          <span id="copy-feedback">Copied!</span>
+        </div>
+        <div class="tool-buttons">
+          <button id="btn-undo" type="button">Undo</button>
+          <button id="btn-clear" type="button" class="btn-danger">Clear</button>
+          <button id="btn-generate" type="button">Generate</button>
+          <button id="btn-copy" type="button">Copy</button>
+          <button id="btn-add" type="button" class="btn-primary">Add to Map</button>
+        </div>
+        <textarea id="generated" readonly></textarea>
+      </div>
     </div>
     <script type="text/javascript">
       //map itself
@@ -512,43 +638,137 @@
     <!-- debugger -->
     <script type="text/javascript">
       var postemp = [];
+      var tempMarkers = [];
+      var previewPolygon = null;
 
       var point = L.icon({
         iconUrl: "dot.png",
         iconSize: [10, 10],
       });
 
-      // make a list of all positions
+      // Collapse/expand toggle
+      document.getElementById("tool-header").addEventListener("click", function () {
+        document.getElementById("debugger").classList.toggle("collapsed");
+      });
+
+      // Update point counter and live preview polygon
+      function updatePreview() {
+        document.getElementById("point-count").textContent = postemp.length;
+
+        // Remove old preview
+        if (previewPolygon) {
+          map.removeLayer(previewPolygon);
+          previewPolygon = null;
+        }
+
+        // Draw live preview polygon if 2+ points
+        if (postemp.length >= 2) {
+          var color = document.getElementById("areacolor").value;
+          previewPolygon = L.polygon(postemp, {
+            color: color,
+            fillColor: color,
+            fillOpacity: 0.15,
+            dashArray: "6, 6",
+            weight: 2,
+          }).addTo(map);
+        }
+      }
+
+      // Update preview color when color picker changes
+      document.getElementById("areacolor").addEventListener("input", updatePreview);
+
+      // Click to place points
       map.on("click", function (ev) {
         var latlng = map.mouseEventToLatLng(ev.originalEvent);
-        // postemp.push("[" + latlng.lat + ", " + latlng.lng + "]")
         postemp.push([latlng.lat, latlng.lng]);
-        console.log(postemp);
         var tempmark = L.marker([latlng.lat, latlng.lng], {
           icon: point,
         }).addTo(map);
+        tempMarkers.push(tempmark);
+        updatePreview();
       });
 
-      function generatePaste(pos) {
-        var ready = document.getElementById("generated");
+      // Undo last point
+      document.getElementById("btn-undo").addEventListener("click", function () {
+        if (postemp.length === 0) return;
+        postemp.pop();
+        var lastMarker = tempMarkers.pop();
+        if (lastMarker) map.removeLayer(lastMarker);
+        updatePreview();
+      });
+
+      // Clear all points
+      document.getElementById("btn-clear").addEventListener("click", function () {
+        postemp = [];
+        tempMarkers.forEach(function (m) { map.removeLayer(m); });
+        tempMarkers = [];
+        if (previewPolygon) {
+          map.removeLayer(previewPolygon);
+          previewPolygon = null;
+        }
+        document.getElementById("generated").value = "";
+        document.getElementById("point-count").textContent = "0";
+      });
+
+      // Generate pretty JSON
+      function generatePaste() {
         var areaName = document.getElementById("areaname").value;
         var areaColor = document.getElementById("areacolor").value;
         var area = {
           id: areas.length,
-          positions: pos,
+          positions: postemp,
           name: areaName,
           color: areaColor,
         };
-        //paste area into generated
-        ready.value = JSON.stringify(area);
+        document.getElementById("generated").value = JSON.stringify(area, null, 2);
       }
-      //run generatePaste when generate button is clicked
-      document
-        .getElementById("generate")
-        .addEventListener("click", function () {
-          var pos = postemp;
-          generatePaste(pos);
+
+      document.getElementById("btn-generate").addEventListener("click", generatePaste);
+
+      // Copy to clipboard
+      document.getElementById("btn-copy").addEventListener("click", function () {
+        var text = document.getElementById("generated").value;
+        if (!text) return;
+        navigator.clipboard.writeText(text).then(function () {
+          var feedback = document.getElementById("copy-feedback");
+          feedback.style.opacity = "1";
+          setTimeout(function () { feedback.style.opacity = "0"; }, 1500);
         });
+      });
+
+      // Add polygon directly to the map
+      document.getElementById("btn-add").addEventListener("click", function () {
+        if (postemp.length < 3) return;
+        var areaName = document.getElementById("areaname").value || "Unnamed Area";
+        var areaColor = document.getElementById("areacolor").value;
+
+        var newArea = {
+          id: areas.length,
+          positions: postemp.slice(),
+          name: areaName,
+          color: areaColor,
+        };
+        areas.push(newArea);
+
+        var polygon = L.polygon(newArea.positions, {
+          color: newArea.color,
+          fillColor: newArea.color,
+          fillOpacity: 0.1,
+        });
+        polygon.bindPopup(newArea.name);
+        cities.addLayer(polygon);
+
+        // Generate output and then clear working state
+        generatePaste();
+        postemp = [];
+        tempMarkers.forEach(function (m) { map.removeLayer(m); });
+        tempMarkers = [];
+        if (previewPolygon) {
+          map.removeLayer(previewPolygon);
+          previewPolygon = null;
+        }
+        document.getElementById("point-count").textContent = "0";
+      });
     </script>
   </body>
 </html>
